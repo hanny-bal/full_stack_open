@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 import Persons from './components/Persons'
 import AddForm from './components/AddForm'
 import Filter from './components/Filter'
@@ -9,12 +10,18 @@ import Filter from './components/Filter'
  */
 const App = () => {
   // array of persons
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas',
-      number: '040-1234567' }
-  ]) 
+  const [persons, setPersons] = useState([]) 
   const [filterString, setFilterString] = useState('')
   const personsToShow = persons.filter(person => person.name.toLowerCase().includes(filterString.toLowerCase()))
+
+  // effect hook that loads the data from the json server
+  useEffect(() => {
+    console.log("loading persons from server...")
+    axios.get('http://localhost:3001/persons')
+      .then(response => {
+        setPersons(response.data)
+      })
+  }, [])
 
   // new name and number in the input field
   const [newName, setNewName] = useState('')
