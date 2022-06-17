@@ -1,6 +1,13 @@
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
+
+// custom token to print request body
+morgan.token('body', function (req, res) { return JSON.stringify(req.body) })
+
 app.use(express.json())
+// app.use(morgan('tiny'))  // predefined style
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))  // custom style with json body
 
 const PORT = 3001
 
