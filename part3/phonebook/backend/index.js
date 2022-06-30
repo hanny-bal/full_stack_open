@@ -1,7 +1,9 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
 const app = express()
+const Person = require('./models/person')
 
 // custom token to print request body
 morgan.token('body', function (req, res) { return JSON.stringify(req.body) })
@@ -14,33 +16,11 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 
 const PORT = process.env.PORT || 3001
 
-// hardcoded list of persons
-let persons = [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
-
 // get a list of persons
 app.get('/api/persons', (request, response) => {
-    response.json(persons)
+    Person.find({}).then(result => {
+      response.json(result)
+    })
   })
 
 // get information about the person list
@@ -78,7 +58,7 @@ app.delete('/api/persons/:id', (request, response) => {
 // add a person to the database
 app.post('/api/persons', (request, response) => {
     const body = request.body
-    const names = persons.map(person => person.name)
+    // const names = persons.map(person => person.name) 
 
     // generate a random id
     const min = Math.ceil(1)
@@ -91,22 +71,24 @@ app.post('/api/persons', (request, response) => {
           error: 'name or number is missing' 
         })
     }
+
     // name already exists
+    /*
     else if(names.includes(body.name)) {
         return response.status(400).json({ 
             error: 'name must be unique' 
           })
-    }
+    }*/
+
     // everything works 
-    else {
-        const person = {
-            id: id,
-            name: body.name,
-            number: body.number
-        }
-        persons = persons.concat(person)
-        response.json(person)
-    }
+      const person = new Person({
+          id: id,
+          name: body.name,
+          number: body.number
+      })
+      person.save().then(savedPerson => {
+        response.json(savedPerson)
+      })
 })
 
 // start the server
