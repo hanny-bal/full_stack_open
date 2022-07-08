@@ -6,6 +6,7 @@ const app = express()
 const Person = require('./models/person')
 
 // custom token to print request body
+// eslint-disable-next-line no-unused-vars
 morgan.token('body', function (req, res) { return JSON.stringify(req.body) })
 
 app.use(express.json())
@@ -14,21 +15,22 @@ app.use(express.static('build'))
 // app.use(morgan('tiny'))  // predefined style
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))  // custom style with json body
 
+// eslint-disable-next-line no-undef
 const PORT = process.env.PORT || 3001
 
 // get a list of persons
 app.get('/api/persons', (request, response, next) => {
     Person.find({}).then(result => {
-      response.json(result)
+        response.json(result)
     })
-    .catch(error => next(error))
-  })
+        .catch(error => next(error))
+})
 
 // get information about the person list
 app.get('/info', (request, response, next) => {
     Person.count({})
         .then(count => {
-            message = `<p>Phonebook has info for ${count} people.</p>`
+            let message = `<p>Phonebook has info for ${count} people.</p>`
             message += `<p>${new Date(Date.now())}</p>`
             response.send(message)
         })
@@ -52,7 +54,7 @@ app.get('/api/persons/:id', (request, response, next) => {
 // delete a person
 app.delete('/api/persons/:id', (request, response, next) => {
     Person.findByIdAndRemove(request.params.id)
-        .then(result => {
+        .then(() => {
             response.status(204).end()
         })
         .catch(error => next(error))
@@ -85,7 +87,7 @@ app.post('/api/persons', (request, response, next) => {
     // name or number is missing
     if (!body.name || !body.number) {
         return response.status(400).json({ 
-          error: 'name or number is missing' 
+            error: 'name or number is missing' 
         })
     }
 
@@ -94,8 +96,8 @@ app.post('/api/persons', (request, response, next) => {
         .then(count => {
             if(count) {
                 return response.status(400).json({ 
-                error: 'name must be unique' 
-            })
+                    error: 'name must be unique' 
+                })
             } else {
                 // everything works 
                 const person = new Person({
@@ -104,9 +106,9 @@ app.post('/api/persons', (request, response, next) => {
                     number: body.number
                 })
                 person.save().then(savedPerson => {
-                response.json(savedPerson)
+                    response.json(savedPerson)
                 })
-                .catch(error => next(error))
+                    .catch(error => next(error))
             }
         })
         .catch(error => next(error))
@@ -126,10 +128,10 @@ const errorHandler = (error, request, response, next) => {
     next(error)
 }
   
-  // this has to be the last loaded middleware.
+// this has to be the last loaded middleware.
 app.use(errorHandler)
 
 // start the server
 app.listen(PORT, () => {
     console.log(`Phonebook server running on port ${PORT}`)
-  })
+})
