@@ -1,6 +1,8 @@
 const blogRouter = require('express').Router()
-const Blog = require('../models/blog.js')
+const Blog = require('../models/blog')
 const User = require('../models/user')
+const jwt = require('jsonwebtoken')
+const middleware = require('../utils/middleware')
 
 
 // get all blogs
@@ -11,31 +13,36 @@ blogRouter.get('/', async (request, response) => {
 
 
 // create a new blog
-blogRouter.post('/', async (request, response) => {
-  const user = await User.findOne({})
-
+blogRouter.post('/', middleware.userExtractor, async (request, response) => {
   // if title and url are missing, respond with status code 400
   if(!request.body.title && !request.body.url) {
     return response.status(400).end()
   }
 
   // otherwise create the blog
-  const newBlog = { ...request.body, user: user._id }
+  const newBlog = { ...request.body, user: request.user._id }
   const blog = new Blog(newBlog)
   const savedBlog = await blog.save()
 
   // and modify the user 
-  user.blogs = user.blogs.concat(savedBlog._id)
-  await user.save()
+  request.user.blogs = request.user.blogs.concat(savedBlog._id)
+  await request.user.save()
 
   response.status(201).json(savedBlog)
 })
 
 
 // delete a blog by id
-blogRouter.delete('/:id', async (request, response) => {
-  await Blog.findByIdAndRemove(request.params.id)
-  response.status(204).end()
+blogRouter.delete('/:id', middleware.userExtractor, async (request, response) => {
+  // check if user owns this blog entry
+  const blog = await Blog.findById(request.params.id)
+  if(blog.user.toString() === request.user.id.toString()) {
+    await Blog.findByIdAndRemove(request.params.id)
+    response.status(204).end()
+  } else {
+    return response.status(401).json({ error: 'user has no privileges to delete this blog' })
+  }
+  
 })
 
 

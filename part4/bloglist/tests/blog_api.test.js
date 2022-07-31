@@ -1,18 +1,24 @@
 const supertest = require('supertest')
 const mongoose = require('mongoose')
-const helper = require('./test_helper')
+const helper = require('../utils/test_helper')
 const app = require('../app')
 const api = supertest(app)
 
 const Blog = require('../models/blog')
+const User = require('../models/user')
+const bcrypt = require('bcrypt')
 
 // run before testing
 beforeEach(async () => {
     await Blog.deleteMany({})
-
     const blogObjects = helper.initialBlogs.map(blog => new Blog(blog))
     const promiseArray = blogObjects.map(blog => blog.save())
     await Promise.all(promiseArray)
+
+    await User.deleteMany({})
+    const passwordHash = await bcrypt.hash('geheim', 10)
+    const user = new User({ username: 'root', passwordHash })
+    await user.save()
 }, 10000)
 
 // test basic get functionality
@@ -38,6 +44,11 @@ describe('when there are initially some blogs saved', () => {
 // test basic post functionality
 describe('when posting a new blog', () => {
     test('a new blog entry is created', async() => {
+        const tokenResponse = await api
+            .post('/api/login')
+            .send({ username: 'root', password: 'geheim' })
+        token = tokenResponse.body.token
+
         const newBlog = {
             "title": "commUNIty",
             "author": "University of Salzburg",
@@ -47,6 +58,7 @@ describe('when posting a new blog', () => {
 
         await api
             .post('/api/blogs')
+            .auth(token, {type:'bearer'} )
             .send(newBlog)
             .expect(201)
             .expect('Content-Type', /application\/json/)
@@ -61,17 +73,29 @@ describe('when posting a new blog', () => {
     })
 
     test('the likes property will default to 0 if missing', async() => {
+        const tokenResponse = await api
+            .post('/api/login')
+            .send({ username: 'root', password: 'geheim' })
+        token = tokenResponse.body.token
+
         const newBlog = {
             "title": "commUNIty",
             "author": "University of Salzburg",
             "url": "https://blog.plus.ac.at/"
         }
 
-        const response = await api.post('/api/blogs').send(newBlog)
+        const response = await api.post('/api/blogs')
+            .auth(token, {type:'bearer'} ) 
+            .send(newBlog)
         expect(response.body.likes).toBe(0)
     })
 
     test('the server returns status code 400 if title and url are missing', async() => {
+        const tokenResponse = await api
+            .post('/api/login')
+            .send({ username: 'root', password: 'geheim' })
+        token = tokenResponse.body.token
+
         const newBlog = {
             "author": "Jakob",
             "likes": 10
@@ -79,19 +103,54 @@ describe('when posting a new blog', () => {
 
         await api
             .post('/api/blogs')
+            .auth(token, {type:'bearer'} ) 
             .send(newBlog)
             .expect(400)
+    })
+
+    test('the server returns status code 401 if a token is missing', async() => {
+        const newBlog = {
+            "title": "commUNIty",
+            "author": "University of Salzburg",
+            "url": "https://blog.plus.ac.at/",
+            "likes": 3244
+        }
+
+        await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(401)
     })
 })
 
 // test delete functionality
 describe('deletion of a blog', () => {
     test('succeeds with status code 204 if id is valid', async() => {
+        const tokenResponse = await api
+            .post('/api/login')
+            .send({ username: 'root', password: 'geheim' })
+        token = tokenResponse.body.token
+
+        // create a dummy entry
+        const newBlog = {
+            "title": "commUNIty",
+            "author": "University of Salzburg",
+            "url": "https://blog.plus.ac.at/",
+            "likes": 3244
+        }
+
+        const createResp = await api
+            .post('/api/blogs')
+            .auth(token, {type:'bearer'} )
+            .send(newBlog)
+
+        // delete this dummy entry
         const blogsToStart = await helper.blogsInDb()
-        const blogToDelete = blogsToStart[0]
+        const blogToDelete = createResp.body
 
         await api
             .delete(`/api/blogs/${blogToDelete.id}`)
+            .auth(token, {type:'bearer'} ) 
             .expect(204)
 
         const blogsAtEnd = await helper.blogsInDb()
