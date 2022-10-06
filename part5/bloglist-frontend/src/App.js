@@ -12,6 +12,11 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
+  const [successMessage, setSuccessMessage] = useState(null)
+
+  const [title, setTitle] = useState('')
+  const [author, setAuthor] = useState('')
+  const [url, setUrl] = useState('')
 
   // load all blog posts
   useEffect(() => {
@@ -61,6 +66,51 @@ const App = () => {
     setUser(null)
   }
 
+  // create a new blog
+  const handleCreateNewBlog = async (event) => {
+    event.preventDefault()
+
+    if(title.length <= 0) {
+      setErrorMessage('New blog is missing a title')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    } else if(author.length <= 0) {
+      setErrorMessage('New blog is missing an author')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    } else if(url.length <= 0) {
+      setErrorMessage('New blog is missing an url')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    } else {
+      try {
+        const newBlog = await blogService.create({
+          title: title,
+          author: author,
+          url: url
+        })
+
+        setBlogs([...blogs, newBlog])
+        setSuccessMessage(`a new blog ${title} by ${author} was added`)
+        setTitle('')
+        setAuthor('')
+        setUrl('')
+        setTimeout(() => {
+          setSuccessMessage(null)
+        }, 5000)
+
+      } catch(exception) {
+        setErrorMessage(`could not add new blog ${title} by ${author}`)
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
+      }
+    }
+  }
+
   // login form element
   const loginForm = () => (
     (
@@ -99,10 +149,47 @@ const App = () => {
     (
       <div>
         <h2>blogs</h2>
+
+        <Notification type='error' message={errorMessage} />
+        <Notification type='success' message={successMessage} />
+
         <p>
           {user.name} logged in
           <button onClick={() => handleLogout()}>logout</button>
         </p>
+
+        <h3>create new</h3>
+        <form onSubmit={handleCreateNewBlog}>
+          <div>
+            title:
+            <input 
+              type='text'
+              value={title}
+              name='title'
+              onChange={({ target }) => setTitle(target.value)}
+            />
+          </div>
+          <div>
+            author:
+            <input 
+              type='text'
+              value={author}
+              name='author'
+              onChange={({ target }) => setAuthor(target.value)}
+            />
+          </div>
+          <div>
+            url:
+            <input 
+              type='text'
+              value={url}
+              name='url'
+              onChange={({ target }) => setUrl(target.value)}
+            />
+          </div>
+          <button type='submit'>create</button>
+        </form>
+
         {blogs.map(blog =>
           <Blog key={blog.id} blog={blog} />
         )}
