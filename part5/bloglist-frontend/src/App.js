@@ -1,10 +1,12 @@
 import './index.css'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
+import BlogForm from './components/BlogForm'
+import Togglable from './components/Togglable'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -13,10 +15,7 @@ const App = () => {
   const [user, setUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
-
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
+  const blogFormRef = useRef()
 
   // load all blog posts
   useEffect(() => {
@@ -66,51 +65,6 @@ const App = () => {
     setUser(null)
   }
 
-  // create a new blog
-  const handleCreateNewBlog = async (event) => {
-    event.preventDefault()
-
-    if(title.length <= 0) {
-      setErrorMessage('New blog is missing a title')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
-    } else if(author.length <= 0) {
-      setErrorMessage('New blog is missing an author')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
-    } else if(url.length <= 0) {
-      setErrorMessage('New blog is missing an url')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
-    } else {
-      try {
-        const newBlog = await blogService.create({
-          title: title,
-          author: author,
-          url: url
-        })
-
-        setBlogs([...blogs, newBlog])
-        setSuccessMessage(`a new blog ${title} by ${author} was added`)
-        setTitle('')
-        setAuthor('')
-        setUrl('')
-        setTimeout(() => {
-          setSuccessMessage(null)
-        }, 5000)
-
-      } catch(exception) {
-        setErrorMessage(`could not add new blog ${title} by ${author}`)
-        setTimeout(() => {
-          setErrorMessage(null)
-        }, 5000)
-      }
-    }
-  }
-
   // login form element
   const loginForm = () => (
     (
@@ -144,6 +98,14 @@ const App = () => {
     )
   )
 
+  // blog form
+  const blogForm = () => (
+    <Togglable buttonLabel = 'new note' ref={blogFormRef}>
+      <BlogForm setErrorMessage={setErrorMessage} setSuccessMessage={setSuccessMessage} 
+          blogs={blogs} setBlogs={setBlogs} blogFormRef={blogFormRef}/>
+    </Togglable>
+  )
+
   // blog view
   const blogView = () => (
     (
@@ -158,37 +120,7 @@ const App = () => {
           <button onClick={() => handleLogout()}>logout</button>
         </p>
 
-        <h3>create new</h3>
-        <form onSubmit={handleCreateNewBlog}>
-          <div>
-            title:
-            <input 
-              type='text'
-              value={title}
-              name='title'
-              onChange={({ target }) => setTitle(target.value)}
-            />
-          </div>
-          <div>
-            author:
-            <input 
-              type='text'
-              value={author}
-              name='author'
-              onChange={({ target }) => setAuthor(target.value)}
-            />
-          </div>
-          <div>
-            url:
-            <input 
-              type='text'
-              value={url}
-              name='url'
-              onChange={({ target }) => setUrl(target.value)}
-            />
-          </div>
-          <button type='submit'>create</button>
-        </form>
+        {blogForm()}
 
         {blogs.map(blog =>
           <Blog key={blog.id} blog={blog} />
