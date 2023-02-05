@@ -29,6 +29,14 @@ const Blog = ({blog, setBlogs, blogs}) => {
     setBlogs(updatedBlogs)
   }
 
+  // delete a blog entry
+  const remove = async () => {
+    // make the request
+    await blogService.remove(blog.id)
+
+    // and update the blog list
+    setBlogs(blogs.filter(b => b.id !== blog.id))
+  }
 
   return(
     <div style={{border: 'solid', margin: 10, padding: 10}}>
@@ -46,6 +54,7 @@ const Blog = ({blog, setBlogs, blogs}) => {
             <button onClick={updateLikes}>like</button>
           </div>
           <div>{blog.author}</div>
+          <div><button onClick={remove}>remove</button></div>
         </div>
       </div>
     </div>  
