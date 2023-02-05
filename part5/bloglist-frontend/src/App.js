@@ -100,7 +100,7 @@ const App = () => {
 
   // blog form
   const blogForm = () => (
-    <Togglable buttonLabel='new note' ref={blogFormRef} cancelLabel='cancel' buttonBeforeContent={false}>
+    <Togglable buttonLabel='new blog' ref={blogFormRef} cancelLabel='cancel' buttonBeforeContent={false}>
       <BlogForm setErrorMessage={setErrorMessage} setSuccessMessage={setSuccessMessage} 
           blogs={blogs} setBlogs={setBlogs} blogFormRef={blogFormRef}/>
     </Togglable>

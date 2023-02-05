@@ -12,7 +12,7 @@ const Blog = ({blog}) => {
 
   return(
     <div style={{border: 'solid', margin: 10, padding: 10}}>
-      {blog.title} {blog.author}
+      {blog.title}
 
       <div style={hideWhenDetailsVisible}>
         <button style={{ marginLeft: 5 }} onClick={toggleDetailVisibility}>view</button>
