@@ -47,16 +47,25 @@ blogRouter.delete('/:id', middleware.userExtractor, async (request, response) =>
 
 
 // update a blog by id
-blogRouter.put('/:id', async (request, response) => {
+blogRouter.put('/:id', middleware.userExtractor, async (request, response) => {
   const blog = {
     title: request.body.title,
     author: request.body.author,
     url: request.body.url,
-    likes: request.body.likes
+    likes: request.body.likes,
+    user: request.user._id
   }
 
+  // update the blog
   updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true, runValidators: true, context: 'query' })
-  response.json(updatedBlog)
+
+  // and modify the blog list of the user in case the blog is not referenced
+  if(!request.user.blogs.includes(updatedBlog._id)) {
+    request.user.blogs = request.user.blogs.concat(updatedBlog._id)
+    await request.user.save()
+  }
+
+  response.status(200).json(updatedBlog)
 })
 
 module.exports = blogRouter

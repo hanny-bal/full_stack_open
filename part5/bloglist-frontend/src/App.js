@@ -16,11 +16,15 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
   const blogFormRef = useRef()
+  const sortedBlogs = blogs.sort((a, b) => b.likes - a.likes)
+
 
   // load all blog posts
   useEffect(() => {
-    blogService.getAll().then(blogs =>
+    blogService.getAll().then(blogs => {
       setBlogs( blogs )
+    }
+      
     )  
   }, [])
 
@@ -122,8 +126,8 @@ const App = () => {
 
         {blogForm()}
 
-        {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} />
+        {sortedBlogs.map(blog =>
+          <Blog key={blog.id} blog={blog} setBlogs={setBlogs} blogs={blogs}/>
         )}
       </div>
     )

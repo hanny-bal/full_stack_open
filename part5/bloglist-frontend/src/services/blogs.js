@@ -24,4 +24,14 @@ const create = async newObject => {
   return response.data
 }
 
-export default { getAll, setToken, create }
+// update a blog entry with increased number of likes
+const like = async (id, updateObject) => {
+  const config = {
+    headers: {Authorization: token}
+  }
+
+  const response = await axios.put(`${baseUrl}/${id}`, updateObject, config)
+  return response.data
+}
+
+export default { getAll, setToken, create, like }
