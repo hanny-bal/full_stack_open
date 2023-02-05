@@ -1,12 +1,11 @@
-import Togglable from "./Togglable"
-import { useState } from "react"
+import { useState } from 'react'
 import blogService from '../services/blogs'
 
-const Blog = ({blog, setBlogs, blogs}) => {
+const Blog = ({ blog, setBlogs, blogs }) => {
   const [showDetails, setShowDetails] = useState(false)
   const hideWhenDetailsVisible = { display: showDetails ? 'none' : 'inline' }
   const showWhenDetailsVisible = { display: showDetails ? 'inline' : 'none' }
-  
+
   const toggleDetailVisibility = () => {
     setShowDetails(!showDetails)
   }
@@ -23,9 +22,9 @@ const Blog = ({blog, setBlogs, blogs}) => {
     })
 
     // and update the blog list
-    const index = blogs.findIndex(b => b.id === blog.id);
-    let updatedBlogs = [...blogs]; // important to create a copy, otherwise you'll modify state outside of setState call
-    updatedBlogs[index] = updatedBlog;
+    const index = blogs.findIndex(b => b.id === blog.id)
+    let updatedBlogs = [...blogs] // important to create a copy, otherwise you'll modify state outside of setState call
+    updatedBlogs[index] = updatedBlog
     setBlogs(updatedBlogs)
   }
 
@@ -39,7 +38,7 @@ const Blog = ({blog, setBlogs, blogs}) => {
   }
 
   return(
-    <div style={{border: 'solid', margin: 10, padding: 10}}>
+    <div style={{ border: 'solid', margin: 10, padding: 10 }}>
       {blog.title}
 
       <div style={hideWhenDetailsVisible}>
@@ -50,14 +49,14 @@ const Blog = ({blog, setBlogs, blogs}) => {
         <div>
           <div>{blog.url}</div>
           <div>
-            likes {blog.likes} 
+            likes {blog.likes}
             <button onClick={updateLikes}>like</button>
           </div>
           <div>{blog.author}</div>
           <div><button onClick={remove}>remove</button></div>
         </div>
       </div>
-    </div>  
+    </div>
   )
 }
 

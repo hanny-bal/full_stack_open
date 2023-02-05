@@ -23,9 +23,7 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then(blogs => {
       setBlogs( blogs )
-    }
-      
-    )  
+    })
   }, [])
 
   // load user from the local storage
@@ -41,7 +39,7 @@ const App = () => {
   // handle a login of the user
   const handleLogin = async (event) => {
     event.preventDefault()
-    
+
     try {
       const user = await loginService.login({
         username, password
@@ -80,7 +78,7 @@ const App = () => {
         <form onSubmit={handleLogin}>
           <div>
             username
-            <input 
+            <input
               type='text'
               value={username}
               name='Username'
@@ -89,7 +87,7 @@ const App = () => {
           </div>
           <div>
             password
-            <input 
+            <input
               type='password'
               value={password}
               name='Password'
@@ -105,8 +103,8 @@ const App = () => {
   // blog form
   const blogForm = () => (
     <Togglable buttonLabel='new blog' ref={blogFormRef} cancelLabel='cancel' buttonBeforeContent={false}>
-      <BlogForm setErrorMessage={setErrorMessage} setSuccessMessage={setSuccessMessage} 
-          blogs={blogs} setBlogs={setBlogs} blogFormRef={blogFormRef}/>
+      <BlogForm setErrorMessage={setErrorMessage} setSuccessMessage={setSuccessMessage}
+        blogs={blogs} setBlogs={setBlogs} blogFormRef={blogFormRef}/>
     </Togglable>
   )
 
@@ -136,8 +134,8 @@ const App = () => {
   // JSX rendering depending on the user login state
   return (
     <>
-      {user === null ? 
-        loginForm() : 
+      {user === null ?
+        loginForm() :
         blogView()
       }
     </>

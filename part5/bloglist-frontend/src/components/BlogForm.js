@@ -1,12 +1,12 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import blogService from '../services/blogs'
 
-const BlogForm = ({setErrorMessage, setSuccessMessage, blogs, setBlogs, blogFormRef}) => {
+const BlogForm = ({ setErrorMessage, setSuccessMessage, blogs, setBlogs, blogFormRef }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
 
-    // create a new blog
+  // create a new blog
   const handleCreateNewBlog = async (event) => {
     event.preventDefault()
 
@@ -26,8 +26,8 @@ const BlogForm = ({setErrorMessage, setSuccessMessage, blogs, setBlogs, blogForm
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
-    } 
-    
+    }
+
     // if everything is fine, create the new blog
     else {
       try {
@@ -56,14 +56,14 @@ const BlogForm = ({setErrorMessage, setSuccessMessage, blogs, setBlogs, blogForm
     }
   }
 
-  // main JSX content 
+  // main JSX content
   return(
-      <>
+    <>
       <h3>create new</h3>
       <form onSubmit={handleCreateNewBlog}>
         <div>
           title:
-          <input 
+          <input
             type='text'
             value={title}
             name='title'
@@ -72,7 +72,7 @@ const BlogForm = ({setErrorMessage, setSuccessMessage, blogs, setBlogs, blogForm
         </div>
         <div>
           author:
-          <input 
+          <input
             type='text'
             value={author}
             name='author'
@@ -81,7 +81,7 @@ const BlogForm = ({setErrorMessage, setSuccessMessage, blogs, setBlogs, blogForm
         </div>
         <div>
           url:
-          <input 
+          <input
             type='text'
             value={url}
             name='url'
@@ -90,8 +90,8 @@ const BlogForm = ({setErrorMessage, setSuccessMessage, blogs, setBlogs, blogForm
         </div>
         <button type='submit'>create</button>
       </form>
-      </>
+    </>
   )
-} 
+}
 
 export default BlogForm
